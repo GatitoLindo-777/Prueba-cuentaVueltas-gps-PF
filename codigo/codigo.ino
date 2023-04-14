@@ -3,14 +3,14 @@
 void displayInfo();
 
 #define PIN_BTN 2
-float posLat;
-float posLng;
+double posLat;
+double posLng;
 
 int contador;
 #define boton 0
 #define comprobacion 1
 #define lectura 2
-int vueltas;  
+int vueltas;
 
 /*
    This sample sketch demonstrates the normal use of a TinyGPSPlus (TinyGPSPlus) object.
@@ -51,85 +51,90 @@ void loop()
       if (digitalRead(PIN_BTN) == 0) {
         posLat = gps.location.lat();
         posLng = gps.location.lng();
+        Serial.print("posLat");
+        Serial.println(posLat, 6);
+        Serial.print("posLng");
+        Serial.println(posLng, 6);
         contador = comprobacion;
-        Serial.println(contador);
+        Serial.println("comprobacion");
       }
-      
+
       break;
     case comprobacion:
       if (posLat != gps.location.lat() || posLng != gps.location.lng()) {
         contador = lectura;
-        Serial.println(contador);
+        Serial.println("lectura");
       }
       break;
-     case lectura:
-      if (posLat == gps.location.lat() || posLng == gps.location.lng()) {
+    case lectura:
+      if (posLat == gps.location.lat() && posLng == gps.location.lng()) {
         vueltas = vueltas + 1;
+        Serial.print("vueltas ");
         Serial.println(vueltas);
         contador = comprobacion;
-        Serial.println(contador);
+        Serial.println("comprobacion");
       }
       if (digitalRead(PIN_BTN) == 0) {
         contador = boton;
       }
       break;
   }
-      if (millis() > 5000 && gps.charsProcessed() < 10)
-      {
-        Serial.println(F("No GPS detected: check wiring."));
-        while (true);
-      }
-      Serial.println(digitalRead(PIN_BTN));
-  
-}
-  void displayInfo()
+  if (millis() > 5000 && gps.charsProcessed() < 10)
   {
-    Serial.print(F("Location: "));
-    if (gps.location.isValid())
-    {
+    Serial.println(F("No GPS detected: check wiring."));
+    while (true);
+  }
+  //Serial.println(digitalRead(PIN_BTN));
 
-      Serial.print(gps.location.lat(), 6);
-      Serial.print(F(","));
-      Serial.print(gps.location.lng(), 6);
+}
+void displayInfo()
+{
+  Serial.print(F("Location: "));
+  if (gps.location.isValid())
+  {
+
+    Serial.print(gps.location.lat(), 6);
+    Serial.print(F(","));
+    Serial.print(gps.location.lng(), 6);
+  }
+  else
+  {
+    Serial.print(F("INVALID"));
+  }
+
+  /*Serial.print(F("  Date/Time: "));
+    if (gps.date.isValid())
+    {
+    Serial.print(gps.date.month());
+    Serial.print(F("/"));
+    Serial.print(gps.date.day());
+    Serial.print(F("/"));
+    Serial.print(gps.date.year());
     }
     else
     {
-      Serial.print(F("INVALID"));
+    Serial.print(F("INVALID"));
+    }*/
+
+  /* Serial.print(F(" "));
+    if (gps.time.isValid())
+    {
+     if (gps.time.hour() < 10) Serial.print(F("0"));
+     Serial.print(gps.time.hour());
+     Serial.print(F(":"));
+     if (gps.time.minute() < 10) Serial.print(F("0"));
+     Serial.print(gps.time.minute());
+     Serial.print(F(":"));
+     if (gps.time.second() < 10) Serial.print(F("0"));
+     Serial.print(gps.time.second());
+     Serial.print(F("."));
+     if (gps.time.centisecond() < 10) Serial.print(F("0"));
+     Serial.print(gps.time.centisecond());
     }
+    else
+    {
+     Serial.print(F("INVALID"));
+    }*/
 
-    /*Serial.print(F("  Date/Time: "));
-      if (gps.date.isValid())
-      {
-      Serial.print(gps.date.month());
-      Serial.print(F("/"));
-      Serial.print(gps.date.day());
-      Serial.print(F("/"));
-      Serial.print(gps.date.year());
-      }
-      else
-      {
-      Serial.print(F("INVALID"));
-      }*/
-
-    /* Serial.print(F(" "));
-      if (gps.time.isValid())
-      {
-       if (gps.time.hour() < 10) Serial.print(F("0"));
-       Serial.print(gps.time.hour());
-       Serial.print(F(":"));
-       if (gps.time.minute() < 10) Serial.print(F("0"));
-       Serial.print(gps.time.minute());
-       Serial.print(F(":"));
-       if (gps.time.second() < 10) Serial.print(F("0"));
-       Serial.print(gps.time.second());
-       Serial.print(F("."));
-       if (gps.time.centisecond() < 10) Serial.print(F("0"));
-       Serial.print(gps.time.centisecond());
-      }
-      else
-      {
-       Serial.print(F("INVALID"));
-      }*/
-
-    Serial.println();
-  }
+  Serial.println();
+}
