@@ -6,10 +6,10 @@ void displayInfo();
 double posLat;
 double posLng;
 
-double UmbralLat+
-double UmbralLat-
-double UmbralLng+
-double UmbralLng-
+double UmbralLatM; //lat+
+double UmbralLatm; //Lat-
+double UmbralLngM; //Lng+
+double UmbralLngm; //Lng-
 
 #define VUmbral 0.0000003
 
@@ -63,10 +63,10 @@ void loop()
         Serial.print("posLng");
         Serial.println(posLng, 6);
 
-        UmbralLat+ = posLat + VUmbral;
-        UmbralLat- = posLat - VUmbral;
-        UmbralLng+ = posLng + VUmbral;
-        UmbralLng- = posLat - VUmbral;
+        UmbralLatM = posLat + VUmbral;
+        UmbralLatm = posLat - VUmbral;
+        UmbralLngM = posLng + VUmbral;
+        UmbralLngm = posLat - VUmbral;
         
         contador = comprobacion;
         Serial.println("comprobacion");
@@ -80,7 +80,7 @@ void loop()
       }
       break;
     case lectura:
-      if (UmbralLat- < gps.location.lat() < UmbralLat+ && UmbralLng- < gps.location.lng() < UmbralLng+) {
+      if (UmbralLatm < gps.location.lat() < UmbralLatM && UmbralLngm < gps.location.lng() < UmbralLngM) {
         vueltas = vueltas + 1;
         Serial.print("vueltas ");
         Serial.println(vueltas);
