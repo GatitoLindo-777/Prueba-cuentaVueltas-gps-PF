@@ -1,8 +1,11 @@
 #include <TinyGPSPlus.h>
 #include <SoftwareSerial.h>
-void displayInfo();
-
 #define PIN_BTN 2
+#define VUmbral 0.0000003
+
+
+void displayInfo(void);
+
 double posLat;
 double posLng;
 
@@ -11,7 +14,7 @@ double UmbralLatm; //Lat-
 double UmbralLngM; //Lng+
 double UmbralLngm; //Lng-
 
-#define VUmbral 0.0000003
+float Vpor = 0.01;
 
 int contador;
 #define boton 0
@@ -46,12 +49,19 @@ void setup()
     Serial.println();*/
 }
 
-void loop()
-{
+void loop(){
+  
+  if(Serial.read() == "+"){
+    Vpor += 0.01;
+    Serial.print(Vpor);
+  }else if (Serial.read() == "-"){
+    Vpor -= 0.01;
+    Serial.print(Vpor);
+  }
   // This sketch displays information every time a new sentence is correctly encoded.
   while (ss.available() > 0)
     if (gps.encode(ss.read()))
-      displayInfo();
+      //displayInfo();
 
   switch (contador) {
     case boton:
@@ -63,11 +73,15 @@ void loop()
         Serial.print("posLng");
         Serial.println(posLng, 6);
 
-        UmbralLatM = posLat + VUmbral;
-        UmbralLatm = posLat - VUmbral;
-        UmbralLngM = posLng + VUmbral;
-        UmbralLngm = posLat - VUmbral;
-        
+        UmbralLatM = posLat + (posLat / 100 * Vpor);
+        UmbralLatm = posLat - (posLat / 100 * Vpor);
+        UmbralLngM = posLng + (posLng / 100 * Vpor);
+        UmbralLngm = posLat - (posLng / 100 * Vpor);
+
+        Serial.println(UmbralLatM);
+        Serial.println(UmbralLatm);
+        Serial.println(UmbralLngM);
+        Serial.println(UmbralLngm);
         contador = comprobacion;
         Serial.println("comprobacion");
       }
