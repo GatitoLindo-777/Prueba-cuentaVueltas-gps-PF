@@ -1,7 +1,7 @@
 #include <TinyGPSPlus.h>
 //#include <SoftwareSerial.h>
 #define PIN_BTN 15
-#define VUmbral 0.0000003
+#define VUmbral 0.00001
 
 
 void displayInfo(void);
@@ -9,12 +9,15 @@ void displayInfo(void);
 double posLat;
 double posLng;
 
+float posLatUnsigned;
+float posLngUnsigned;
+
 double UmbralLatM; //lat+
 double UmbralLatm; //Lat-
 double UmbralLngM; //Lng+
 double UmbralLngm; //Lng-
 
-float Vpor = 0.01;
+float Vpor = 0.00001;
 
 int contador;
 #define boton 0
@@ -39,7 +42,7 @@ TinyGPSPlus gps;
 void setup()
 {
   Serial.begin(9600);
-  Serial2.begin(9600,SERIAL_8N1,RXPin, TXPin);
+  Serial2.begin(9600, SERIAL_8N1, RXPin, TXPin);
   Serial2.begin(GPSBaud);
   pinMode (PIN_BTN, INPUT_PULLUP);
 
@@ -48,21 +51,36 @@ void setup()
     Serial.print(F("Testing TinyGPSPlus library v. ")); Serial.println(TinyGPSPlus::libraryVersion());
     Serial.println(F("by Mikal Hart"));
     Serial.println();*/
-}
-
-void loop(){
+  while (gps.satellites.value() < 5) {
+    Serial.println("hay menos de 5 satelites conectados");
+    Serial.print("satelites actuales ");
+    Serial.println(gps.satellites.value());
+    delay(1000);
+  }
   
-  if(Serial.read() == '+'){
-    Vpor += 0.01;
+}
+void loop() {
+    while (gps.satellites.value() < 5) {
+    Serial.println("hay menos de 5 satelites conectados");
+    Serial.print("satelites actuales ");
+    int satelites = gps.satellites.value();
+    Serial.println(satelites);
+    delay(1000);
+  }
+  
+  if (Serial.read() == '+') {
+    Vpor += 0.00001;
     Serial.print(Vpor);
-  }else if (Serial.read() == '-'){
-    Vpor -= 0.01;
+  } else if (Serial.read() == '-') {
+    Vpor -= 0.00001;
     Serial.print(Vpor);
   }
   // This sketch displays information every time a new sentence is correctly encoded.
-  while (Serial2.available() > 0)
-    if (gps.encode(Serial2.read()))
-      displayInfo();
+  while (Serial2.available() > 0) {
+    if (gps.encode(Serial2.read())) {
+      //displayInfo();
+    }
+  }
 
   switch (contador) {
     case boton:
@@ -74,10 +92,26 @@ void loop(){
         Serial.print("posLng");
         Serial.println(posLng, 6);
 
-        UmbralLatM = posLat + (posLat / 100 * Vpor);
-        UmbralLatm = posLat - (posLat / 100 * Vpor);
-        UmbralLngM = posLng + (posLng / 100 * Vpor);
-        UmbralLngm = posLat - (posLng / 100 * Vpor);
+        float  variacionLat;
+        float variacionLng;
+        if (posLat < 0) {
+          posLatUnsigned = posLat * (-1);
+        } else {
+          posLatUnsigned = posLat;
+        }
+        if (posLng < 0) {
+          posLngUnsigned = posLng * (-1);
+        } else {
+          posLngUnsigned = posLng;
+        }
+
+        variacionLat = posLatUnsigned / 100 * Vpor;
+        variacionLng = posLngUnsigned / 100 * Vpor;
+
+        UmbralLatM = posLat + variacionLat;
+        UmbralLatm = posLat - variacionLat;
+        UmbralLngM = posLng + variacionLng;
+        UmbralLngm = posLat - variacionLng;
 
         Serial.println(UmbralLatM);
         Serial.println(UmbralLatm);
@@ -115,8 +149,8 @@ void loop(){
   //Serial.println(digitalRead(PIN_BTN));
 
 }
-void displayInfo()
-{
+
+void displayInfo(void) {
   Serial.print(F("Location: "));
   if (gps.location.isValid())
   {
