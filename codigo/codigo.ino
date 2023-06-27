@@ -1,6 +1,6 @@
 #include <TinyGPSPlus.h>
-#include <SoftwareSerial.h>
-#define PIN_BTN 2
+//#include <SoftwareSerial.h>
+#define PIN_BTN 15
 #define VUmbral 0.0000003
 
 
@@ -27,19 +27,20 @@ int vueltas;
    It requires the use of SoftwareSerial, and assumes that you have a
    4800-baud serial GPS device hooked up on pins 4(rx) and 3(tx).
 */
-static const int RXPin = 4, TXPin = 3;
+static const int RXPin = 16, TXPin = 17;
 static const uint32_t GPSBaud = 9600;
 
 // The TinyGPSPlus object
 TinyGPSPlus gps;
 
 // The serial connection to the GPS device
-SoftwareSerial ss(RXPin, TXPin);
+//SoftwareSerial ss(RXPin, TXPin);
 
 void setup()
 {
   Serial.begin(9600);
-  ss.begin(GPSBaud);
+  Serial2.begin(9600,SERIAL_8N1,RXPin, TXPin);
+  Serial2.begin(GPSBaud);
   pinMode (PIN_BTN, INPUT_PULLUP);
 
   /*Serial.println(F("DeviceExample.ino"));
@@ -51,17 +52,17 @@ void setup()
 
 void loop(){
   
-  if(Serial.read() == "+"){
+  if(Serial.read() == '+'){
     Vpor += 0.01;
     Serial.print(Vpor);
-  }else if (Serial.read() == "-"){
+  }else if (Serial.read() == '-'){
     Vpor -= 0.01;
     Serial.print(Vpor);
   }
   // This sketch displays information every time a new sentence is correctly encoded.
-  while (ss.available() > 0)
-    if (gps.encode(ss.read()))
-      //displayInfo();
+  while (Serial2.available() > 0)
+    if (gps.encode(Serial2.read()))
+      displayInfo();
 
   switch (contador) {
     case boton:
