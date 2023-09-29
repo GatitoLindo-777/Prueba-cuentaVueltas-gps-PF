@@ -51,12 +51,12 @@ void setup()
     Serial.print(F("Testing TinyGPSPlus library v. ")); Serial.println(TinyGPSPlus::libraryVersion());
     Serial.println(F("by Mikal Hart"));
     Serial.println();*/
-  while (gps.satellites.value() < 5) {
+  /*while (gps.satellites.value() < 5) {
     Serial.println("hay menos de 5 satelites conectados");
     Serial.print("satelites actuales ");
     Serial.println(gps.satellites.value());
     delay(1000);
-  }
+  }*/
   
 }
 void loop() {
