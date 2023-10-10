@@ -17,7 +17,7 @@ double UmbralLatm; //Lat-
 double UmbralLngM; //Lng+
 double UmbralLngm; //Lng-
 
-float Vpor = 0.00001;
+float Vpor = 0.00003;
 
 int contador;
 #define boton 0
@@ -41,7 +41,7 @@ TinyGPSPlus gps;
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial1.begin(9600);
   Serial2.begin(9600, SERIAL_8N1, RXPin, TXPin);
   Serial2.begin(GPSBaud);
   pinMode (PIN_BTN, INPUT_PULLUP);
@@ -60,20 +60,13 @@ void setup()
   
 }
 void loop() {
-    while (gps.satellites.value() < 5) {
-    Serial.println("hay menos de 5 satelites conectados");
-    Serial.print("satelites actuales ");
-    int satelites = gps.satellites.value();
-    Serial.println(satelites);
-    delay(1000);
-  }
   
-  if (Serial.read() == '+') {
+  if (Serial1.read() == '+') {
     Vpor += 0.00001;
-    Serial.print(Vpor);
-  } else if (Serial.read() == '-') {
+    Serial1.print(Vpor);
+  } else if (Serial1.read() == '-') {
     Vpor -= 0.00001;
-    Serial.print(Vpor);
+    Serial1.print(Vpor);
   }
   // This sketch displays information every time a new sentence is correctly encoded.
   while (Serial2.available() > 0) {
@@ -87,12 +80,12 @@ void loop() {
       if (digitalRead(PIN_BTN) == 0) {
         posLat = gps.location.lat();
         posLng = gps.location.lng();
-        Serial.print("posLat");
-        Serial.println(posLat, 6);
-        Serial.print("posLng");
-        Serial.println(posLng, 6);
+        Serial1.print("posLat");
+        Serial1.println(posLat, 6);
+        Serial1.print("posLng");
+        Serial1.println(posLng, 6);
 
-        float  variacionLat;
+        float variacionLat;
         float variacionLng;
         if (posLat < 0) {
           posLatUnsigned = posLat * (-1);
@@ -113,31 +106,39 @@ void loop() {
         UmbralLngM = posLng + variacionLng;
         UmbralLngm = posLat - variacionLng;
 
-        Serial.println(UmbralLatM);
-        Serial.println(UmbralLatm);
-        Serial.println(UmbralLngM);
-        Serial.println(UmbralLngm);
+        Serial1.println(UmbralLatM);
+        Serial1.println(UmbralLatm);
+        Serial1.println(UmbralLngM);
+        Serial1.println(UmbralLngm);
         contador = comprobacion;
-        Serial.println("comprobacion");
+        Serial1.println("comprobacion");
       }
 
       break;
     case comprobacion:
-      if (posLat != gps.location.lat() || posLng != gps.location.lng()) {
+      /*if (posLat != gps.location.lat() || posLng != gps.location.lng()) {
         contador = lectura;
         Serial.println("lectura");
+      }*/
+      if (UmbralLatm > gps.location.lat() || gps.location.lat() > UmbralLatM){
+        contador = lectura;
+        Serial1.println("lectura");
+      } else if (UmbralLngm < gps.location.lng() || gps.location.lng() < UmbralLngM){
+        contador = lectura;
+        Serial1.println("lectura");
       }
       break;
     case lectura:
       if (UmbralLatm < gps.location.lat() < UmbralLatM && UmbralLngm < gps.location.lng() < UmbralLngM) {
         vueltas = vueltas + 1;
-        Serial.print("vueltas ");
-        Serial.println(vueltas);
+        Serial1.print("vueltas ");
+        Serial1.println(vueltas);
         contador = comprobacion;
-        Serial.println("comprobacion");
+        Serial1.println("comprobacion");
       }
       if (digitalRead(PIN_BTN) == 0) {
         contador = boton;
+        Serial1.print("boton");
       }
       break;
   }
